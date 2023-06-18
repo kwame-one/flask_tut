@@ -8,15 +8,10 @@ class BaseRepository:
         self.model = model
 
     def find_all(self, query=None):
-        resources = db_session.scalars(select(self.model).order_by(desc(self.model.id))).all()
-        return list(map(lambda item: item.to_json(), resources))
+        return db_session.scalars(select(self.model).order_by(desc(self.model.id))).all()
 
     def find(self, id):
-        resource = db_session.scalars(select(self.model).where(self.model.id == id)).first()
-        db_session.commit()
-        if resource is None:
-            return None
-        return resource.to_json()
+        return db_session.scalars(select(self.model).where(self.model.id == id)).first()
 
     def update(self, id, data):
         db_session.execute(update(self.model).where(self.model.id == id).values(**data))
@@ -27,7 +22,7 @@ class BaseRepository:
         resource = self.model(**data)
         db_session.add(resource)
         db_session.commit()
-        return resource.to_json()
+        return resource
 
     def delete(self, id):
         db_session.execute(delete(self.model).where(self.model.id == id))
